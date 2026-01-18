@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro — Quartz Edition</title>
+
+<style>
+:root{
+  --bg:#050709;
+  --card:#0B0F14;
+  --panel:#0F141B;
+  --input:#111820;
+  --border:#1E2833;
+  --quartz:#9AA6B2;
+  --gold:#D4AF37;
+  --gold-light:#F0D48A;
+  --text:#E8EEF4;
+  --red:#ff5f5f;
+  --green:#c9f02f;
+  --orange:#ffb347;
+}
+
+/* ===== GLOBAL ===== */
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg,#0B0F14 0%,#050709 100%);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ===== NAV ===== */
+.nav{
+  max-width:1100px;
+  margin:0 auto;
+  padding:16px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.nav a{
+  color:var(--gold);
+  text-decoration:none;
+  margin-left:14px;
+  font-weight:700;
+}
+
+/* ===== HERO (ACCUEIL) ===== */
+.hero{
+  max-width:1100px;
+  margin:40px auto 20px;
+  padding:0 14px;
+  text-align:center;
+}
+.hero h1{
+  font-size:34px;
+  margin:0;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero p{
+  color:var(--quartz);
+}
+
+/* ===== BUTTON ===== */
+.primary{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  color:#050709;
+  font-weight:800;
+}
+
+/* ===== APP CONTAINER ===== */
+.app{
+  max-width:960px;
+  margin:0 auto;
+  padding:16px 12px 90px;
+}
+
+/* ===== CARDS ===== */
+.card{
+  background:var(--card);
+  padding:14px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  margin-bottom:10px;
+}
+
+/* ===== FIELDS ===== */
+.field{margin:8px 0;}
+label{display:block;font-size:12px;color:var(--quartz);}
+input, select{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--input);
+  color:white;
+}
+
+/* ===== DASHBOARD ===== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:10px;
+}
+.chart-box{
+  background:var(--panel);
+  padding:8px;
+  border-radius:14px;
+  border:1px solid var(--border);
+}
+canvas{width:100%;height:220px;}
+
+/* ===== IMC ZONES ===== */
+.imc-zone{
+  display:flex;
+  height:8px;
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:6px;
+}
+.imc-maigreur{flex:1;background:var(--orange);}
+.imc-normal{flex:1;background:var(--green);}
+.imc-surpoids{flex:1;background:var(--red);}
+
+/* ===== RECO BOX ===== */
+.reco{
+  background:linear-gradient(135deg,#0B0F14,#0F141B);
+  border-left:5px solid var(--gold);
+  padding:12px;
+  border-radius:12px;
+}
+
+/* ===== HISTORY ===== */
+.history{
+  max-height:220px;
+  overflow-y:auto;
+  font-size:12px;
+  background:var(--panel);
+  padding:8px;
+  border-radius:12px;
+}
+.hist-item{padding:4px 0;border-bottom:1px solid var(--border);}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;
+  bottom:0; left:0; right:0;
+  display:flex;
+  background:#050709;
+  border-top:1px solid var(--border);
+}
+.bottom-nav button{
+  flex:1;
+  background:none;
+  border:none;
+  color:var(--quartz);
+  padding:10px 6px;
+  font-size:11px;
+}
+.bottom-nav button.active{color:var(--gold);}
+
+.section{display:none;}
+.section.active{display:block;}
+</style>
+</head>
+
+<body>
+
+<!-- ===== NAV ===== -->
+<div class="nav">
+  <div style="font-weight:900;color:var(--gold)">MacroFit Pro</div>
+  <div>
+    <a href="#" onclick="showPage('home')">Accueil</a>
+    <a href="#" onclick="showPage('app')">Calculateur</a>
+  </div>
+</div>
+
+<!-- ===== ACCUEIL ===== -->
+<div id="home" class="section active">
+  <div class="hero">
+    <h1>Analyse ton corps comme un pro</h1>
+    <p>Métabolisme • Morphologie • Performance • Récupération</p>
+    <button class="primary" onclick="showPage('app')">Accéder au calculateur</button>
+  </div>
+</div>
+
+<!-- ===== APPLICATION ===== -->
+<div id="app" class="section">
+<div class="app">
+
+<!-- PROFIL -->
+<div id="app-profile" class="section active">
+  <div class="card">
+    <strong style="color:var(--gold)">Profil utilisateur</strong>
+    <div class="field"><label>Nom du profil</label><input id="pname"></div>
+    <button class="primary" onclick="createProfile()">Créer / Sauvegarder</button>
+    <div class="field">
+      <label>Charger un profil</label>
+      <select id="profiles"></select>
+    </div>
+    <button class="primary" onclick="loadProfile()">Charger</button>
+    <button class="primary" onclick="deleteProfile()">Supprimer</button>
+  </div>
+</div>
+
+<!-- DONNÉES -->
+<div id="app-input" class="section">
+  <div class="card">
+    <strong style="color:var(--gold)">Données</strong>
+    <div class="field"><label>Âge</label><input id="age" type="number"></div>
+    <div class="field"><label>Taille (cm)</label><input id="taille" type="number"></div>
+    <div class="field"><label>Poids (kg)</label><input id="poids" type="number"></div>
+    <div class="field"><label>Tour de taille (cm)</label><input id="tour" type="number"></div>
+    <div class="field">
+      <label>Sexe</label>
+      <select id="sexe">
+        <option value="M">Homme</option>
+        <option value="F">Femme</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Activité</label>
+      <select id="activite">
+        <option value="1.2">Sédentaire</option>
+        <option value="1.375">Légèrement actif</option>
+        <option value="1.55">Modéré</option>
+        <option value="1.725">Très actif</option>
+        <option value="1.9">Extrême</option>
+      </select>
+    </div>
+    <div class="field"><label>Sommeil (h)</label><input id="sommeil" type="number"></div>
+    <div class="field"><label>Stress (1-10)</label><input id="stress" type="number"></div>
+    <div class="field">
+      <label>Morphologie</label>
+      <select id="morpho">
+        <option value="auto">Auto</option>
+        <option value="ecto">Ectomorphe</option>
+        <option value="meso">Mésomorphe</option>
+        <option value="endo">Endomorphe</option>
+      </select>
+    </div>
+    <button class="primary" onclick="calculate()">CALCULER</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="app-dash" class="section">
+  <div class="grid">
+    <div class="chart-box">
+      <strong style="color:var(--gold)">BMR vs TDEE</strong>
+      <canvas id="c1"></canvas>
+    </div>
+    <div class="chart-box">
+      <strong style="color:var(--gold)">IMC</strong>
+      <canvas id="c2"></canvas>
+      <div class="imc-zone">
+        <div class="imc-maigreur"></div>
+        <div class="imc-normal"></div>
+        <div class="imc-surpoids"></div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <strong style="color:var(--gold)">Calories (4 semaines)</strong>
+      <canvas id="c3"></canvas>
+    </div>
+    <div class="chart-box">
+      <strong style="color:var(--gold)">Fatigue</strong>
+      <canvas id="c4"></canvas>
+    </div>
+  </div>
+
+  <div class="card reco" id="reco-box" style="margin-top:12px;"></div>
+</div>
+
+<!-- RÉSULTATS -->
+<div id="app-res" class="section">
+  <div class="card">
+    <strong style="color:var(--gold)">Résultats détaillés</strong>
+    <div id="res"></div>
+    <button class="primary" onclick="window.print()">Télécharger le rapport (PDF)</button>
+  </div>
+</div>
+
+<!-- HISTORIQUE -->
+<div id="app-hist" class="section">
+  <div class="card">
+    <strong style="color:var(--gold)">Historique (local)</strong>
+    <div id="history" class="history"></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ===== NAVIGATION BAS ===== -->
+<div class="bottom-nav">
+  <button class="active" onclick="showApp('profile')">Profil</button>
+  <button onclick="showApp('input')">Données</button>
+  <button onclick="showApp('dash')">Dashboard</button>
+  <button onclick="showApp('res')">Résultats</button>
+  <button onclick="showApp('hist')">Historique</button>
+</div>
+
+<script>
+// ===== NAV PAGES =====
+function showPage(p){
+  document.getElementById('home').classList.remove('active');
+  document.getElementById('app').classList.remove('active');
+  document.getElementById(p).classList.add('active');
+}
+
+// ===== NAV APP =====
+function showApp(s){
+  ['profile','input','dash','res','hist'].forEach(x=>{
+    document.getElementById('app-'+x).classList.remove('active');
+  });
+  document.getElementById('app-'+s).classList.add('active');
+}
+
+// ===== PROFILS =====
+function listProfiles(){
+  const sel=document.getElementById('profiles');
+  sel.innerHTML='';
+  const p=JSON.parse(localStorage.getItem('mf_profiles')||'{}');
+  Object.keys(p).forEach(k=>{
+    const o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);
+  });
+}
+function createProfile(){
+  const name=document.getElementById('pname').value.trim();
+  if(!name){alert('Nom requis');return;}
+  const data={
+    age:age.value,taille:taille.value,poids:poids.value,tour:tour.value,
+    sexe:sexe.value,activite:activite.value,sommeil:sommeil.value,
+    stress:stress.value,morpho:morpho.value
+  };
+  let p=JSON.parse(localStorage.getItem('mf_profiles')||'{}');
+  p[name]=data;
+  localStorage.setItem('mf_profiles',JSON.stringify(p));
+  listProfiles();
+}
+function loadProfile(){
+  const sel=document.getElementById('profiles');
+  const p=JSON.parse(localStorage.getItem('mf_profiles')||'{}')[sel.value];
+  if(!p)return;
+  age.value=p.age;taille.value=p.taille;poids.value=p.poids;tour.value=p.tour;
+  sexe.value=p.sexe;activite.value=p.activite;sommeil.value=p.sommeil;
+  stress.value=p.stress;morpho.value=p.morpho;
+}
+function deleteProfile(){
+  const sel=document.getElementById('profiles');
+  let p=JSON.parse(localStorage.getItem('mf_profiles')||'{}');
+  delete p[sel.value];
+  localStorage.setItem('mf_profiles',JSON.stringify(p));
+  listProfiles();
+}
+listProfiles();
+
+// ===== HISTORY =====
+function addHistory(obj){
+  let h=JSON.parse(localStorage.getItem('mf_history')||'[]');
+  h.unshift(obj);
+  if(h.length>30)h.pop();
+  localStorage.setItem('mf_history',JSON.stringify(h));
+  renderHistory();
+}
+function renderHistory(){
+  const box=document.getElementById('history');
+  box.innerHTML='';
+  const h=JSON.parse(localStorage.getItem('mf_history')||'[]');
+  h.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='hist-item';
+    d.textContent=it.date+' — '+it.summary;
+    box.appendChild(d);
+  });
+}
+renderHistory();
+
+// ===== CHARTS =====
+function drawBar(ctx, labels, values, max){
+  const w=ctx.canvas.width, h=ctx.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const pad=30, bw=(w-2*pad)/values.length;
+  ctx.fillStyle='#D4AF37';
+  ctx.font='10px sans-serif';
+  for(let i=0;i<values.length;i++){
+    const bh=(values[i]/max)*(h-2*pad);
+    ctx.fillRect(pad+i*bw, h-pad-bh, bw*0.6, bh);
+    ctx.fillText(labels[i], pad+i*bw, h-8);
+  }
+}
+function drawLine(ctx, points, max){
+  const w=ctx.canvas.width, h=ctx.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const pad=30;
+  ctx.beginPath();
+  points.forEach((v,i)=>{
+    const x=pad + i*(w-2*pad)/(points.length-1);
+    const y=h-pad - (v/max)*(h-2*pad);
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  });
+  ctx.strokeStyle='#D4AF37';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#D4AF37';
+  points.forEach((v,i)=>{
+    const x=pad + i*(w-2*pad)/(points.length-1);
+    const y=h-pad - (v/max)*(h-2*pad);
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+  });
+}
+
+// ===== RECOMMANDATIONS =====
+function buildRecommendation(p){
+  let t = "<strong>Recommandations personnalisées</strong><br><br>";
+  t += "Profil : <b>"+p.somato+"</b> — IMC <b>"+p.imc.toFixed(1)+"</b> — Fatigue <b>"+p.fatigue.toFixed(1)+"/10</b>.<br><br>";
+
+  if(p.imc>25){
+    t += "• Déficit calorique modéré (-300 à -400 kcal).<br>";
+  } else if(p.imc<20){
+    t += "• Léger surplus calorique (+200 à +300 kcal).<br>";
+  } else {
+    t += "• Maintien ou léger déficit selon objectif.<br>";
+  }
+
+  let prot_kg = p.somato==="Endomorphe"?2.2:p.somato==="Ectomorphe"?1.8:2.0;
+  t += "• Protéines : ~"+Math.round(prot_kg*p.poids)+" g/jour ("+prot_kg.toFixed(1)+" g/kg).<br>";
+
+  if(p.somato==="Endomorphe"){
+    t += "• Force + cardio modéré (3–4 séances/semaine).<br>";
+  } else if(p.somato==="Ectomorphe"){
+    t += "• Hypertrophie progressive, volume modéré.<br>";
+  } else {
+    t += "• Mix force/hypertrophie équilibré.<br>";
+  }
+
+  if(p.sommeil<7){
+    t += "• Priorité : améliorer le sommeil (7–9h/nuit).<br>";
+  }
+
+  t += "• Compléments utiles : Whey, Oméga-3, Vitamine D ; Créatine 3–5 g/jour si entraînement régulier.<br>";
+  return t;
+}
+
+// ===== CALCUL =====
+function calculate(){
+  const agev=parseFloat(age.value);
+  const taille=parseFloat(document.getElementById('taille').value);
+  const poids=parseFloat(document.getElementById('poids').value);
+  const tourv=parseFloat(document.getElementById('tour').value);
+  const sexe=document.getElementById('sexe').value;
+  const act=parseFloat(document.getElementById('activite').value);
+  const sommeil=parseFloat(document.getElementById('sommeil').value)||7;
+  const stress=parseFloat(document.getElementById('stress').value)||5;
+  const morpho=document.getElementById('morpho').value;
+
+  const bmr = (sexe==='M') ? (10*poids)+(6.25*taille)-(5*agev)+5 :
+                             (10*poids)+(6.25*taille)-(5*agev)-161;
+  const tdee_brut = bmr*act;
+  const imc = poids/Math.pow(taille/100,2);
+
+  let somato = morpho==='auto'
+    ? (imc<20?'Ectomorphe':imc<=25?'Mésomorphe':'Endomorphe')
+    : (morpho==='ecto'?'Ectomorphe':morpho==='meso'?'Mésomorphe':'Endomorphe');
+
+  let tdee_adj=tdee_brut;
+  if(somato==='Ectomorphe')tdee_adj*=1.05;
+  else if(somato==='Endomorphe')tdee_adj*=0.95;
+
+  let bf=null;
+  if(!isNaN(tourv)){
+    if(sexe==='M'){
+      let lean=(1.082*poids)+94.42-(4.15*tourv);
+      bf=((poids-lean)/poids)*100;
+    } else {
+      let lean=(0.732*poids)+8.987+(0.157*tourv);
+      bf=((poids-lean)/poids)*100;
+    }
+  }
+  const lean_mass = bf?poids*(1-bf/100):null;
+  const ideal = 22.5*Math.pow(taille/100,2);
+
+  let risk='Inconnu';
+  if(!isNaN(tourv)){
+    if(sexe==='M'){
+      if(tourv<94)risk='Faible';
+      else if(tourv<102)risk='Modéré';
+      else risk='Élevé';
+    } else {
+      if(tourv<80)risk='Faible';
+      else if(tourv<88)risk='Modéré';
+      else risk='Élevé';
+    }
+  }
+
+  const fatigue = Math.max(0,Math.min(10,(10-sommeil)+(stress/2)));
+
+  drawBar(c1.getContext('2d'),['BMR','TDEE'],[bmr,tdee_adj],3500);
+  drawBar(c2.getContext('2d'),['IMC'],[imc],35);
+  drawLine(c3.getContext('2d'),[tdee_adj-100,tdee_adj,tdee_adj,tdee_adj+100],tdee_adj+300);
+  drawBar(c4.getContext('2d'),['Fatigue'],[fatigue],10);
+
+  document.getElementById('res').innerHTML=`
+  <p><b>BMR:</b> ${Math.round(bmr)} kcal</p>
+  <p><b>TDEE brut:</b> ${Math.round(tdee_brut)} kcal</p>
+  <p><b>TDEE ajusté:</b> ${Math.round(tdee_adj)} kcal</p>
+  <p><b>IMC:</b> ${imc.toFixed(1)}</p>
+  <p><b>% Masse grasse:</b> ${bf?bf.toFixed(1)+'%':'-'}</p>
+  <p><b>Masse maigre:</b> ${lean_mass?lean_mass.toFixed(1)+' kg':'-'}</p>
+  <p><b>Poids idéal:</b> ${ideal.toFixed(1)} kg</p>
+  <p><b>Risque cardio-métabolique:</b> ${risk}</p>
+  `;
+
+  document.getElementById('reco-box').innerHTML =
+    buildRecommendation({somato,imc,fatigue,poids,sommeil});
+
+  addHistory({
+    date:new Date().toLocaleString(),
+    summary:`Poids ${poids}kg — TDEE ${Math.round(tdee_adj)} kcal — IMC ${imc.toFixed(1)}`
+  });
+
+  showApp('dash');
+}
+</script>
+
+</body>
+</html>
