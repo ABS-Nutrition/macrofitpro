@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro</title>
+<style>
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:20px;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:#0b0f14;
+  color:#e5ebf3;
+}
+.container{
+  max-width: 520px;
+  margin:0 auto;
+  background:#121820;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+  border:1px solid #1f2933;
+}
+.header{
+  text-align:center;
+  margin-bottom:15px;
+}
+h1{
+  margin:0;
+  color:#1aff6b;
+  font-size:24px;
+  letter-spacing:0.5px;
+}
+.subtitle{
+  margin-top:6px;
+  font-size:13px;
+  color:#b6c4d2;
+}
+.field{
+  margin-top:12px;
+}
+label{
+  display:block;
+  font-weight:600;
+  margin-bottom:4px;
+  font-size:14px;
+}
+input, select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #2a3644;
+  background:#1b222b;
+  color:white;
+  font-size:16px;
+}
+button{
+  width:100%;
+  margin-top:16px;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:#1aff6b;
+  color:#0b0f14;
+  font-weight:700;
+  font-size:16px;
+  text-transform:uppercase;
+}
+button:active{ background:#17d65c; }
+
+.table-box{
+  margin-top:18px;
+  background:#1b222b;
+  padding:12px;
+  border-radius:12px;
+  border-left:4px solid #1aff6b;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+}
+th, td{
+  border:1px solid #2a3644;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+}
+th{
+  background:#161c24;
+  color:#1aff6b;
+}
+.result{
+  font-weight:700;
+}
+.footer{
+  margin-top:12px;
+  font-size:12px;
+  text-align:center;
+  color:#8fa3b5;
+}
+.error{
+  display:none;
+  color:#ff4b4b;
+  text-align:center;
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔥 MacroFit Pro 🔥</h1>
+    <div class="subtitle">Calculateur calories & macros – version pro</div>
+  </div>
+
+  <div class="field">
+    <label>Âge</label>
+    <input type="number" id="age" placeholder="Ex : 25">
+  </div>
+
+  <div class="field">
+    <label>Taille (cm)</label>
+    <input type="number" id="taille" placeholder="Ex : 175">
+  </div>
+
+  <div class="field">
+    <label>Poids (kg)</label>
+    <input type="number" id="poids" placeholder="Ex : 70">
+  </div>
+
+  <div class="field">
+    <label>Sexe</label>
+    <select id="sexe">
+      <option value="M">Homme</option>
+      <option value="F">Femme</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Niveau d'activité</label>
+    <select id="activite">
+      <option value="1.2">Sédentaire</option>
+      <option value="1.375">Légèrement actif</option>
+      <option value="1.55">Modérément actif</option>
+      <option value="1.725">Très actif</option>
+      <option value="1.9">Extrêmement actif</option>
+    </select>
+  </div>
+
+  <div class="error" id="error">⚠️ Remplis âge, taille et poids.</div>
+
+  <button id="btnCalc">CALCULER MES MACROS</button>
+
+  <div class="table-box">
+    <strong>Résultats</strong>
+    <table>
+      <tr>
+        <th>BMR</th>
+        <th>TDEE</th>
+        <th>IMC</th>
+      </tr>
+      <tr>
+        <td id="bmr" class="result">-</td>
+        <td id="tdee" class="result">-</td>
+        <td id="imc" class="result">-</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="table-box">
+    <strong>Macros (grammes)</strong>
+    <table>
+      <tr>
+        <th>Objectif</th>
+        <th>Protéines</th>
+        <th>Lipides</th>
+        <th>Glucides</th>
+      </tr>
+      <tr>
+        <td>Maintien</td>
+        <td id="p_maint" class="result">-</td>
+        <td id="l_maint" class="result">-</td>
+        <td id="g_maint" class="result">-</td>
+      </tr>
+      <tr>
+        <td>Sèche</td>
+        <td id="p_perte" class="result">-</td>
+        <td id="l_perte" class="result">-</td>
+        <td id="g_perte" class="result">-</td>
+      </tr>
+      <tr>
+        <td>Prise</td>
+        <td id="p_prise" class="result">-</td>
+        <td id="l_prise" class="result">-</td>
+        <td id="g_prise" class="result">-</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer">MacroFit Pro — outil indicatif</div>
+</div>
+
+<script>
+// --- IMPORTANT : méthode compatible Safari (sans onclick inline) ---
+document.getElementById("btnCalc").addEventListener("click", function(){
+
+  const age = parseFloat(document.getElementById("age").value);
+  const taille = parseFloat(document.getElementById("taille").value);
+  const poids = parseFloat(document.getElementById("poids").value);
+  const sexe = document.getElementById("sexe").value;
+  const act = parseFloat(document.getElementById("activite").value);
+
+  if (!age || !taille || !poids) {
+    document.getElementById("error").style.display = "block";
+    return;
+  }
+  document.getElementById("error").style.display = "none";
+
+  // BMR
+  let bmr = (sexe === "M")
+    ? 10*poids + 6.25*taille - 5*age + 5
+    : 10*poids + 6.25*taille - 5*age - 161;
+
+  const tdee = bmr * act;
+  const imc = poids / Math.pow(taille/100, 2);
+
+  // Objectifs
+  const calMaint = tdee;
+  const calPerte = tdee - 300;
+  const calPrise = tdee + 300;
+
+  function macros(cal, p, l, g){
+    return {
+      p: Math.round((cal*p)/4),
+      l: Math.round((cal*l)/9),
+      g: Math.round((cal*g)/4)
+    };
+  }
+
+  const mMaint = macros(calMaint, 0.30, 0.30, 0.40);
+  const mPerte = macros(calPerte, 0.35, 0.25, 0.40);
+  const mPrise = macros(calPrise, 0.30, 0.25, 0.45);
+
+  // Écriture dans les tableaux
+  document.getElementById("bmr").innerText = Math.round(bmr);
+  document.getElementById("tdee").innerText = Math.round(tdee);
+  document.getElementById("imc").innerText = imc.toFixed(1);
+
+  document.getElementById("p_maint").innerText = mMaint.p;
+  document.getElementById("l_maint").innerText = mMaint.l;
+  document.getElementById("g_maint").innerText = mMaint.g;
+
+  document.getElementById("p_perte").innerText = mPerte.p;
+  document.getElementById("l_perte").innerText = mPerte.l;
+  document.getElementById("g_perte").innerText = mPerte.g;
+
+  document.getElementById("p_prise").innerText = mPrise.p;
+  document.getElementById("l_prise").innerText = mPrise.l;
+  document.getElementById("g_prise").innerText = mPrise.g;
+});
+</script>
+
+</body>
+</html>
