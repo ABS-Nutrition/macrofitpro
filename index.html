@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro — Ultra Calculs</title>
+<style>
+:root{
+  --bg:#050709;
+  --card:#0b0f14;
+  --panel:#0f141b;
+  --input:#111820;
+  --border:#1e2833;
+  --accent:#c9f02f;
+  --accent-dim:#c9f02f22;
+  --text:#e8eef4;
+  --muted:#9aa6b2;
+  --gold:#d4af37;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg, #0b0f14 0%, #050709 100%);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ---------- LAYOUT ---------- */
+.app{
+  max-width: 720px;
+  margin:30px auto;
+  background:var(--card);
+  padding:24px;
+  border-radius:20px;
+  box-shadow:0 0 40px rgba(0,0,0,.9);
+  border:1px solid var(--border);
+}
+
+.header{text-align:center;margin-bottom:18px;}
+h1{margin:0;color:var(--accent);font-size:26px;font-weight:800;}
+.subtitle{font-size:13px;color:var(--muted);margin-top:6px;}
+
+.section{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+.section h2{color:var(--accent);font-size:18px;}
+
+.field{ margin-top:12px; }
+label{display:block;font-weight:700;margin-bottom:5px;font-size:14px;color:var(--muted);}
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--input);
+  color:white;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  margin-top:18px;
+  padding:13px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(90deg, var(--gold), var(--accent));
+  color:#050709;
+  font-weight:900;
+  font-size:16px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+/* ---------- RÉSULTATS ---------- */
+#resultsPage{display:none;}
+.table-box{
+  margin-top:18px;
+  background:var(--panel);
+  padding:14px;
+  border-radius:16px;
+  border-left:5px solid var(--accent);
+}
+table{width:100%;border-collapse:collapse;margin-top:8px;}
+th, td{border:1px solid var(--border);padding:8px;text-align:center;font-size:14px;}
+th{background:#0b0f14;color:var(--accent);}
+.result{ font-weight:800; }
+
+.reco-box{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--panel);
+}
+.reco-title{color:var(--accent);font-weight:800;margin-bottom:6px;}
+
+.explain{
+  background:#0b0f14;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  margin-top:16px;
+  font-size:13px;
+  color:var(--muted);
+}
+.footer{margin-top:18px;font-size:12px;text-align:center;color:var(--muted);}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+  <h1>⚜️ MacroFit Pro — Ultra Calculs ⚜️</h1>
+  <div class="subtitle">Analyse métabolique, morphologique et performance avancée</div>
+</div>
+
+<!-- ========== FORMULAIRE ========== -->
+<div id="formPage">
+
+<div class="section">
+<h2>1) Données de base</h2>
+<div class="field"><label>Âge</label><input id="age" type="number"></div>
+<div class="field"><label>Taille (cm)</label><input id="taille" type="number"></div>
+<div class="field"><label>Poids (kg)</label><input id="poids" type="number"></div>
+<div class="field"><label>Tour de taille (cm)</label><input id="tour" type="number"></div>
+<div class="field">
+  <label>Sexe</label>
+  <select id="sexe">
+    <option value="M">Homme</option>
+    <option value="F">Femme</option>
+  </select>
+</div>
+<div class="field">
+  <label>Niveau d’activité</label>
+  <select id="activite">
+    <option value="1.2">Sédentaire</option>
+    <option value="1.375">Légèrement actif</option>
+    <option value="1.55">Modéré</option>
+    <option value="1.725">Très actif</option>
+    <option value="1.9">Extrême</option>
+  </select>
+</div>
+<div class="field"><label>Sommeil (h)</label><input id="sommeil" type="number"></div>
+<div class="field"><label>Stress (1–10)</label><input id="stress" type="number"></div>
+</div>
+
+<div class="section">
+<h2>2) Morphologie</h2>
+<select id="morpho">
+  <option value="auto">Auto</option>
+  <option value="ecto">Ectomorphe</option>
+  <option value="meso">Mésomorphe</option>
+  <option value="endo">Endomorphe</option>
+</select>
+</div>
+
+<button onclick="calculate()">CALCULER</button>
+
+</div>
+
+<!-- ========== PAGE RÉSULTATS ========== -->
+<div id="resultsPage">
+
+<div class="section">
+<h2>Résultats — Métabolisme</h2>
+<div class="table-box">
+<table>
+<tr><th>BMR Harris</th><th>BMR Mifflin</th><th>TDEE brut</th><th>TDEE ajusté</th></tr>
+<tr>
+<td id="bmr_hb" class="result"></td>
+<td id="bmr_m" class="result"></td>
+<td id="tdee_brut" class="result"></td>
+<td id="tdee_adj" class="result"></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Résultats — Morphologie & Composition</h2>
+<div class="table-box">
+<table>
+<tr>
+<th>IMC</th><th>Catégorie</th><th>% Masse grasse</th><th>Masse maigre (kg)</th><th>Poids idéal</th>
+</tr>
+<tr>
+<td id="imc"></td>
+<td id="imc_cat"></td>
+<td id="bf"></td>
+<td id="lean_mass"></td>
+<td id="ideal"></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Résultats — Performance & Récupération</h2>
+<div class="table-box">
+<table>
+<tr>
+<th>Score fatigue</th><th>Ajustement calories</th><th>Priorités</th>
+</tr>
+<tr>
+<td id="fatigue"></td>
+<td id="cal_adj"></td>
+<td id="recup"></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Macros (g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Protéines</th><th>Lipides</th><th>Glucides</th></tr>
+<tr>
+<td>Maintien</td>
+<td id="p_maint"></td><td id="l_maint"></td><td id="g_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td>
+<td id="p_cut"></td><td id="l_cut"></td><td id="g_cut"></td>
+</tr>
+<tr>
+<td>Prise</td>
+<td id="p_bulk"></td><td id="l_bulk"></td><td id="g_bulk"></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Recommandations personnalisées</h2>
+<div id="reco_global" class="reco-box"></div>
+<div id="reco_prot" class="reco-box"></div>
+<div id="reco_supp" class="reco-box"></div>
+</div>
+
+<button onclick="window.print()">TÉLÉCHARGER EN PDF</button>
+
+<!-- ========== EXPLICATIONS DÉTAILLÉES ========== -->
+<div class="section">
+<h2>À quoi sert chaque donnée ?</h2>
+
+<div class="explain">
+<b>BMR (Basal Metabolic Rate)</b> : calories nécessaires au repos complet (respirer, cœur, cerveau).
+</div>
+
+<div class="explain">
+<b>TDEE</b> : calories totales dépensées par jour, incluant activité physique.
+</div>
+
+<div class="explain">
+<b>IMC</b> : indicateur du rapport poids/taille (utile mais imparfait pour sportifs).
+</div>
+
+<div class="explain">
+<b>% Masse grasse</b> : estimation du pourcentage de graisse corporelle.
+</div>
+
+<div class="explain">
+<b>Masse maigre</b> : poids sans graisse (muscles, os, organes).
+</div>
+
+<div class="explain">
+<b>Poids idéal</b> : poids théorique basé sur un IMC santé.
+</div>
+
+<div class="explain">
+<b>Fatigue</b> : score basé sur sommeil + stress pour ajuster calories.
+</div>
+
+<div class="explain">
+<b>Macros</b> : répartition protéines/lipides/glucides selon objectif.
+</div>
+
+</div>
+
+<div class="footer">MacroFit Pro — Ultra Calculs</div>
+</div>
+
+<script>
+function calculate(){
+
+const age = parseFloat(age.value);
+const taille = parseFloat(document.getElementById("taille").value);
+const poids = parseFloat(document.getElementById("poids").value);
+const tour = parseFloat(document.getElementById("tour").value);
+const sexe = document.getElementById("sexe").value;
+const act = parseFloat(document.getElementById("activite").value);
+const sommeil = parseFloat(document.getElementById("sommeil").value) || 7;
+const stress = parseFloat(document.getElementById("stress").value) || 5;
+const morpho = document.getElementById("morpho").value;
+
+// BMR
+const bmr_hb = (sexe==="M")
+? 66 + (13.7*poids) + (5*taille) - (6.8*age)
+: 655 + (9.6*poids) + (1.8*taille) - (4.7*age);
+
+const bmr_m = (sexe==="M")
+? (10*poids)+(6.25*taille)-(5*age)+5
+: (10*poids)+(6.25*taille)-(5*age)-161;
+
+const tdee_brut = bmr_m * act;
+
+// IMC
+const imc = poids / Math.pow(taille/100,2);
+let imc_cat = imc<18.5?"Maigreur":imc<25?"Normal":imc<30?"Surpoids":"Obésité";
+
+// Masse grasse (YMCA)
+let bf = "Non calculé";
+let lean_mass = "Non calculé";
+if(!isNaN(tour)){
+  if(sexe==="M"){
+    let lean=(1.082*poids)+94.42-(4.15*tour);
+    bf=(((poids-lean)/poids)*100).toFixed(1)+"%";
+    lean_mass=(poids*(1-parseFloat(bf)/100)).toFixed(1);
+  } else {
+    let lean=(0.732*poids)+8.987+(0.157*tour);
+    bf=(((poids-lean)/poids)*100).toFixed(1)+"%";
+    lean_mass=(poids*(1-parseFloat(bf)/100)).toFixed(1);
+  }
+}
+
+// Poids idéal
+const ideal = (22.5*Math.pow(taille/100,2)).toFixed(1);
+
+// TDEE ajusté
+let tdee_adj = tdee_brut;
+if(morpho==="ecto") tdee_adj*=1.05;
+if(morpho==="endo") tdee_adj*=0.95;
+
+// Fatigue
+const fatigue = Math.max(0,Math.min(10,(10-sommeil)+(stress/2)));
+let cal_adj = fatigue>=7?"-150 kcal":fatigue>=4?"Maintien":"+150 kcal";
+let recup = fatigue>=7?"Sommeil + magnésium":"Hydratation";
+
+// Macros
+const maint = {p:poids*2, l:poids*0.8, g:(tdee_adj - (poids*2*4)-(poids*0.8*9))/4};
+const cut = {p:poids*2.2, l:poids*0.7, g:(tdee_adj-350 - (poids*2.2*4)-(poids*0.7*9))/4};
+const bulk = {p:poids*1.8, l:poids*0.8, g:(tdee_adj+350 - (poids*1.8*4)-(poids*0.8*9))/4};
+
+// Affichage
+document.getElementById("bmr_hb").innerText=Math.round(bmr_hb);
+document.getElementById("bmr_m").innerText=Math.round(bmr_m);
+document.getElementById("tdee_brut").innerText=Math.round(tdee_brut);
+document.getElementById("tdee_adj").innerText=Math.round(tdee_adj);
+
+document.getElementById("imc").innerText=imc.toFixed(1);
+document.getElementById("imc_cat").innerText=imc_cat;
+document.getElementById("bf").innerText=bf;
+document.getElementById("lean_mass").innerText=lean_mass;
+document.getElementById("ideal").innerText=ideal;
+
+document.getElementById("fatigue").innerText=fatigue.toFixed(1)+"/10";
+document.getElementById("cal_adj").innerText=cal_adj;
+document.getElementById("recup").innerText=recup;
+
+document.getElementById("p_maint").innerText=Math.round(maint.p);
+document.getElementById("l_maint").innerText=Math.round(maint.l);
+document.getElementById("g_maint").innerText=Math.round(maint.g);
+
+document.getElementById("p_cut").innerText=Math.round(cut.p);
+document.getElementById("l_cut").innerText=Math.round(cut.l);
+document.getElementById("g_cut").innerText=Math.round(cut.g);
+
+document.getElementById("p_bulk").innerText=Math.round(bulk.p);
+document.getElementById("l_bulk").innerText=Math.round(bulk.l);
+document.getElementById("g_bulk").innerText=Math.round(bulk.g);
+
+document.getElementById("reco_global").innerHTML="Orientation adaptée selon ta morphologie et ton IMC.";
+document.getElementById("reco_prot").innerHTML="Protéines cibles basées sur ton poids corporel.";
+document.getElementById("reco_supp").innerHTML="Whey, Oméga-3, Vitamine D, Créatine selon entraînement.";
+
+// Afficher la page résultats
+document.getElementById("formPage").style.display="none";
+document.getElementById("resultsPage").style.display="block";
+}
+</script>
+</body>
+</html>
