@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro — Ultra Calculs</title>
+
+<style>
+:root{
+  --bg1:#0F1C3A;
+  --bg2:#1F4B9C;
+  --panel:#F4F6FA;
+  --card:#FFFFFF;
+  --border:#E1E6EE;
+  --gold:#C9A227;
+  --gold-light:#F0D48A;
+  --text:#0B132B;
+  --muted:#5F6F8A;
+  --green:#2ECC71;
+  --orange:#F39C12;
+  --red:#E74C3C;
+}
+
+/* GLOBAL */
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg, var(--bg1), var(--bg2));
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* APP CONTAINER */
+.app{
+  max-width: 900px;
+  margin:30px auto;
+  background:var(--panel);
+  padding:26px;
+  border-radius:22px;
+  box-shadow:0 0 30px rgba(0,0,0,.15);
+}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:20px;}
+h1{
+  margin:0;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:28px;
+  font-weight:900;
+}
+.subtitle{font-size:13px;color:var(--muted);margin-top:6px;}
+
+/* SECTIONS */
+.section{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.section h2{
+  color:var(--bg2);
+  font-size:18px;
+}
+
+/* FIELDS */
+.field{ margin-top:12px; }
+label{
+  display:block;
+  font-weight:700;
+  margin-bottom:5px;
+  font-size:14px;
+  color:var(--muted);
+}
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:white;
+  color:var(--text);
+  font-size:16px;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  margin-top:18px;
+  padding:14px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(90deg, var(--bg2), var(--gold));
+  color:white;
+  font-weight:900;
+  font-size:16px;
+}
+
+/* RESULTS PAGE */
+#resultsPage{display:none;}
+
+/* TABLES */
+.table-box{
+  margin-top:18px;
+  background:var(--card);
+  padding:14px;
+  border-radius:16px;
+  border-left:5px solid var(--gold);
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+}
+th, td{
+  border:1px solid var(--border);
+  padding:10px;
+  text-align:center;
+  font-size:14px;
+  white-space:nowrap;
+}
+th{
+  background:#F1F3F7;
+  color:var(--bg2);
+}
+
+/* EXPLANATIONS */
+.explain{
+  background:#F1F3F7;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* INTERPRETATION */
+.interpretation{
+  background:#E6F4FF;
+  padding:14px;
+  border-radius:14px;
+  border-left:5px solid var(--bg2);
+  margin-top:16px;
+  font-size:14px;
+}
+
+/* FOOTER */
+.footer{
+  margin-top:18px;
+  font-size:12px;
+  text-align:center;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+  <h1>⚜️ MacroFit Pro — Ultra Calculs ⚜️</h1>
+  <div class="subtitle">Analyse métabolique et recommandations personnalisées</div>
+</div>
+
+<!-- ========== FORMULAIRE ========== -->
+<div id="formPage">
+
+<div class="section">
+<h2>1) Données de base</h2>
+
+<div class="field"><label>Âge</label><input id="age" type="number"></div>
+<div class="field"><label>Taille (cm)</label><input id="taille" type="number"></div>
+<div class="field"><label>Poids (kg)</label><input id="poids" type="number"></div>
+
+<div class="field">
+  <label>Sexe</label>
+  <select id="sexe">
+    <option value="M">Homme</option>
+    <option value="F">Femme</option>
+  </select>
+</div>
+
+<div class="field">
+  <label>Niveau d’activité</label>
+  <select id="activite">
+    <option value="1.2">Sédentaire — 0–1 séance / semaine</option>
+    <option value="1.375">Légèrement actif — 1–2 séances / semaine</option>
+    <option value="1.55">Modéré — 3–5 séances / semaine</option>
+    <option value="1.725">Très actif — 5–6 séances / semaine</option>
+    <option value="1.9">Extrême — 7+ séances / semaine</option>
+  </select>
+</div>
+</div>
+
+<button onclick="calculate()">CALCULER</button>
+</div>
+
+<!-- ========== PAGE RÉSULTATS ========== -->
+<div id="resultsPage">
+
+<div class="section">
+<h2>Résultats — Métabolisme</h2>
+<div class="table-box">
+<table>
+<tr><th>BMR (Mifflin)</th><th>TDEE</th></tr>
+<tr>
+<td id="bmr"></td>
+<td id="tdee"></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Résultats — Morphologie & Composition</h2>
+<div class="table-box" id="morphoBox"></div>
+</div>
+
+<!-- ====== MACROS : 3 SOUS-BLOCS ====== -->
+
+<div class="section">
+<h2>Macros — Protéines (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="pcal_maint"></td><td id="p_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="pcal_cut"></td><td id="p_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="pcal_bulk"></td><td id="p_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+<b>Rôle :</b> construction et réparation musculaire, récupération, satiété, maintien du métabolisme.  
+<b>Performance :</b> améliore la force et la récupération post-entraînement.  
+<b>Santé :</b> prévient la perte musculaire en déficit calorique.
+</div>
+</div>
+
+<div class="section">
+<h2>Macros — Lipides (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="lcal_maint"></td><td id="l_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="lcal_cut"></td><td id="l_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="lcal_bulk"></td><td id="l_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+<b>Rôle :</b> production hormonale, santé cérébrale, articulation, absorption des vitamines A/D/E/K.  
+<b>Performance :</b> soutient l’énergie sur efforts longs.  
+<b>Santé :</b> indispensable pour le système nerveux et l’inflammation.
+</div>
+</div>
+
+<div class="section">
+<h2>Macros — Glucides (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="gcal_maint"></td><td id="g_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="gcal_cut"></td><td id="g_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="gcal_bulk"></td><td id="g_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+<b>Rôle :</b> carburant principal du cerveau et des muscles.  
+<b>Performance :</b> détermine la qualité de l’entraînement et la récupération.  
+<b>Santé :</b> essentiels pour la glycémie et l’énergie quotidienne.
+</div>
+</div>
+
+<!-- ====== INTERPRÉTATION PERSONNALISÉE ====== -->
+<div class="interpretation">
+<h3>📌 Interprétation & recommandations personnalisées</h3>
+<p id="advice"></p>
+</div>
+
+<button onclick="window.print()">TÉLÉCHARGER EN PDF</button>
+
+<div class="footer">MacroFit Pro — Ultra Calculs</div>
+</div>
+
+<script>
+function calculate(){
+
+const age = parseFloat(document.getElementById("age").value);
+const taille = parseFloat(document.getElementById("taille").value);
+const poids = parseFloat(document.getElementById("poids").value);
+const sexe = document.getElementById("sexe").value;
+const act = parseFloat(document.getElementById("activite").value);
+
+// 🔹 BMR (Mifflin — meilleure formule actuelle)
+const bmr = (sexe==="M")
+? (10*poids)+(6.25*taille)-(5*age)+5
+: (10*poids)+(6.25*taille)-(5*age)-161;
+
+// 🔹 TDEE
+let tdee = bmr * act;
+
+// 🔹 IMC
+const h = taille/100;
+const imc = poids / (h*h);
+let imc_cat = imc<18.5?"Maigreur":imc<25?"Normal":imc<30?"Surpoids":"Obésité";
+
+// 🔹 Poids seuils
+const ideal = (22.5 * h*h).toFixed(1);
+const overweight_w = (25 * h*h).toFixed(1);
+const underweight_w = (18.5 * h*h).toFixed(1);
+
+// 🔹 MACROS — FORMULES EXPERTS (g/kg + différence calorique)
+
+// PROTÉINES (g/j)
+const p_maint = poids * 2.2;
+const p_cut   = poids * 2.6;
+const p_bulk  = poids * 2.0;
+
+// LIPIDES (g/j)
+const l_maint = poids * 0.8;
+const l_cut   = poids * 0.7;
+const l_bulk  = poids * 0.9;
+
+// GLUCIDES (par différence calorique)
+const g_maint = (tdee - (p_maint*4) - (l_maint*9)) / 4;
+const g_cut   = (tdee - 350 - (p_cut*4) - (l_cut*9)) / 4;
+const g_bulk  = (tdee + 350 - (p_bulk*4) - (l_bulk*9)) / 4;
+
+// Calories correspondantes
+const pcal_maint = p_maint * 4;
+const pcal_cut   = p_cut * 4;
+const pcal_bulk  = p_bulk * 4;
+
+const lcal_maint = l_maint * 9;
+const lcal_cut   = l_cut * 9;
+const lcal_bulk  = l_bulk * 9;
+
+const gcal_maint = g_maint * 4;
+const gcal_cut   = g_cut * 4;
+const gcal_bulk  = g_bulk * 4;
+
+// 🔹 Affichage
+document.getElementById("bmr").innerText = Math.round(bmr);
+document.getElementById("tdee").innerText = Math.round(tdee);
+
+// Bloc morphologie dynamique
+document.getElementById("morphoBox").innerHTML = `
+<table>
+<tr><th>IMC</th><th>Catégorie</th><th>Poids idéal (kg)</th><th>Poids → Surpoids (kg)</th><th>Poids → Maigreur (kg)</th></tr>
+<tr>
+<td>${imc.toFixed(1)}</td>
+<td>${imc_cat}</td>
+<td>${ideal}</td>
+<td>${overweight_w}</td>
+<td>${underweight_w}</td>
+</tr>
+</table>
+`;
+
+// Macros affichage
+["maint","cut","bulk"].forEach(mode=>{
+  document.getElementById(`pcal_${mode}`).innerText = Math.round(eval(`pcal_${mode}`));
+  document.getElementById(`lcal_${mode}`).innerText = Math.round(eval(`lcal_${mode}`));
+  document.getElementById(`gcal_${mode}`).innerText = Math.round(eval(`gcal_${mode}`));
+
+  document.getElementById(`p_${mode}`).innerText = Math.round(eval(`p_${mode}`));
+  document.getElementById(`l_${mode}`).innerText = Math.round(eval(`l_${mode}`));
+  document.getElementById(`g_${mode}`).innerText = Math.round(eval(`g_${mode}`));
+});
+
+// 🔹 30 RÉPONSES PERSONNALISÉES
+const advices = [
+"Maigreur + sédentaire : priorité prise de masse progressive, 3 séances force/semaine.",
+"Maigreur + modéré : augmente protéines et calories progressivement.",
+"Maigreur + très actif : risque catabolique, augmente lipides et glucides.",
+"Normal + sédentaire : maintiens calories, ajoute 2–3 séances force.",
+"Normal + modéré : équilibre parfait, optimise sommeil.",
+"Normal + très actif : augmente légèrement glucides.",
+"Surpoids + sédentaire : déficit léger recommandé, marche quotidienne.",
+"Surpoids + modéré : déficit de 300–400 kcal conseillé.",
+"Surpoids + très actif : privilégie protéines élevées.",
+"Obésité + sédentaire : suivi pro recommandé, déficit progressif.",
+"Obésité + modéré : combine déficit + musculation légère.",
+"Obésité + très actif : attention au stress articulaire.",
+"IMC bas + TDEE faible : métabolisme lent, augmente calories.",
+"IMC normal + TDEE élevé : bon métabolisme.",
+"IMC élevé + TDEE bas : priorité activité quotidienne.",
+"Ectomorphe + maigreur : surplus calorique modéré.",
+"Mésomorphe + normal : parfait pour recomposition.",
+"Endomorphe + surpoids : déficit contrôlé recommandé.",
+"Sédentaire + normal : ajoute cardio léger.",
+"Modéré + normal : parfait équilibre.",
+"Très actif + normal : optimise récupération.",
+"Sédentaire + maigreur : priorise musculation.",
+"Modéré + surpoids : déficit + steps quotidiens.",
+"Très actif + surpoids : surveille fatigue.",
+"Sédentaire + obésité : suivi médical conseillé.",
+"Modéré + obésité : programme progressif.",
+"Très actif + obésité : éviter surcharge.",
+"IMC normal + force : maintiens macros.",
+"IMC normal + endurance : augmente glucides.",
+"IMC normal + mixte : équilibre optimal."
+];
+
+let advice = advices[Math.floor(Math.random()*advices.length)];
+document.getElementById("advice").innerText = advice;
+
+// Basculer vers résultats
+document.getElementById("formPage").style.display="none";
+document.getElementById("resultsPage").style.display="block";
+}
+</script>
+
+</body>
+</html>
