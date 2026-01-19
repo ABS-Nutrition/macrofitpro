@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro — Ultra Calculs</title>
+
+<style>
+:root{
+  --bg1:#0F1C3A;
+  --bg2:#1F4B9C;
+  --panel:#F4F6FA;
+  --card:#FFFFFF;
+  --border:#E1E6EE;
+  --gold:#C9A227;
+  --text:#0B132B;
+  --muted:#5F6F8A;
+}
+
+/* GLOBAL */
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg, var(--bg1), var(--bg2));
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* APP CONTAINER */
+.app{
+  max-width: 900px;
+  margin:30px auto;
+  background:var(--panel);
+  padding:26px;
+  border-radius:22px;
+  box-shadow:0 0 30px rgba(0,0,0,.15);
+}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:20px;}
+h1{
+  margin:0;
+  background:linear-gradient(90deg,var(--gold),#F0D48A);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:28px;
+  font-weight:900;
+}
+
+/* SECTIONS */
+.section{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.section h2{
+  color:var(--bg2);
+}
+
+/* FIELDS */
+.field{ margin-top:12px; }
+label{display:block;font-weight:700;margin-bottom:5px;}
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  margin-top:18px;
+  padding:14px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(90deg, var(--bg2), var(--gold));
+  color:white;
+  font-weight:900;
+}
+
+/* RESULTS PAGE */
+#resultsPage{display:none;}
+
+/* TABLES */
+.table-box{
+  margin-top:18px;
+  background:var(--card);
+  padding:14px;
+  border-radius:16px;
+  border-left:5px solid var(--gold);
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th, td{
+  border:1px solid var(--border);
+  padding:10px;
+  text-align:center;
+  white-space:nowrap;
+}
+th{background:#F1F3F7;color:var(--bg2);}
+
+/* EXPLANATIONS */
+.explain{
+  background:#F1F3F7;
+  padding:14px;
+  border-radius:14px;
+  margin-top:10px;
+  font-size:13px;
+}
+
+/* INTERPRETATION */
+.interpretation{
+  background:#E6F4FF;
+  padding:14px;
+  border-radius:14px;
+  border-left:5px solid var(--bg2);
+  margin-top:16px;
+}
+
+/* FOOTER */
+.footer{
+  margin-top:18px;
+  font-size:12px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+  <h1>⚜️ MacroFit Pro — Ultra Calculs ⚜️</h1>
+</div>
+
+<!-- ========== FORMULAIRE ========== -->
+<div id="formPage">
+
+<div class="section">
+<h2>1) Données de base</h2>
+<div class="field"><label>Âge</label><input id="age" type="number"></div>
+<div class="field"><label>Taille (cm)</label><input id="taille" type="number"></div>
+<div class="field"><label>Poids (kg)</label><input id="poids" type="number"></div>
+
+<div class="field">
+  <label>Sexe</label>
+  <select id="sexe">
+    <option value="M">Homme</option>
+    <option value="F">Femme</option>
+  </select>
+</div>
+
+<div class="field">
+  <label>Niveau d’activité</label>
+  <select id="activite">
+    <option value="1.2">Sédentaire — 0–1 séance / semaine</option>
+    <option value="1.375">Légèrement actif — 1–2 séances / semaine</option>
+    <option value="1.55">Modéré — 3–5 séances / semaine</option>
+    <option value="1.725">Très actif — 5–6 séances / semaine</option>
+    <option value="1.9">Extrême — 7+ séances / semaine</option>
+  </select>
+</div>
+</div>
+
+<div class="section">
+<h2>2) Morphologie</h2>
+<select id="morpho">
+  <option value="auto">Auto</option>
+  <option value="ecto">Ectomorphe</option>
+  <option value="meso">Mésomorphe</option>
+  <option value="endo">Endomorphe</option>
+</select>
+</div>
+
+<button onclick="calculate()">CALCULER</button>
+</div>
+
+<!-- ========== PAGE RÉSULTATS ========== -->
+<div id="resultsPage">
+
+<div class="section">
+<h2>Résultats — Métabolisme</h2>
+<div class="table-box">
+<table>
+<tr><th>BMR (kcal/jour)</th><th>TDEE (kcal/jour)</th></tr>
+<tr>
+<td id="bmr"></td>
+<td id="tdee"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+<b>BMR</b> = calories nécessaires au repos complet (fonctions vitales).  
+<b>TDEE</b> = dépense calorique totale incluant l’activité physique.
+</div>
+</div>
+
+<div class="section">
+<h2>Résultats — Morphologie & IMC</h2>
+<div class="table-box" id="morphoBox"></div>
+<div class="explain">
+L’IMC donne une indication globale du statut pondéral. Les seuils sont :  
+&lt;18.5 = maigreur | 18.5–24.9 = normal | 25–29.9 = surpoids | ≥30 = obésité.
+</div>
+</div>
+
+<!-- ====== MACROS ====== -->
+
+<div class="section">
+<h2>Macros — Protéines (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="pcal_maint"></td><td id="p_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="pcal_cut"></td><td id="p_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="pcal_bulk"></td><td id="p_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+Les protéines servent à construire et réparer le muscle, améliorer la récupération et augmenter la satiété.
+</div>
+</div>
+
+<div class="section">
+<h2>Macros — Lipides (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="lcal_maint"></td><td id="l_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="lcal_cut"></td><td id="l_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="lcal_bulk"></td><td id="l_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+Les lipides sont essentiels pour les hormones, le cerveau et l’absorption des vitamines A, D, E et K.
+</div>
+</div>
+
+<div class="section">
+<h2>Macros — Glucides (kcal → g/jour)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>Calories (kcal)</th><th>Grammes (g/j)</th></tr>
+<tr>
+<td>Maintien</td><td id="gcal_maint"></td><td id="g_maint"></td>
+</tr>
+<tr>
+<td>Sèche</td><td id="gcal_cut"></td><td id="g_cut"></td>
+</tr>
+<tr>
+<td>Prise</td><td id="gcal_bulk"></td><td id="g_bulk"></td>
+</tr>
+</table>
+</div>
+<div class="explain">
+Les glucides sont la principale source d’énergie pour le cerveau et l’entraînement.
+</div>
+</div>
+
+<div class="interpretation">
+<h3>📌 Interprétation & recommandations personnalisées</h3>
+<p id="advice"></p>
+</div>
+
+<button onclick="window.print()">TÉLÉCHARGER EN PDF</button>
+
+<div class="footer">MacroFit Pro — Ultra Calculs</div>
+</div>
+
+<script>
+function calculate(){
+
+const age = parseFloat(document.getElementById("age").value);
+const taille = parseFloat(document.getElementById("taille").value);
+const poids = parseFloat(document.getElementById("poids").value);
+const sexe = document.getElementById("sexe").value;
+const act = parseFloat(document.getElementById("activite").value);
+const morpho = document.getElementById("morpho").value;
+
+// 🔹 BMR (Mifflin)
+const bmr = (sexe==="M")
+? (10*poids)+(6.25*taille)-(5*age)+5
+: (10*poids)+(6.25*taille)-(5*age)-161;
+
+// 🔹 TDEE
+let tdee = bmr * act;
+
+// Ajustement morpho
+if(morpho==="ecto") tdee*=1.05;
+if(morpho==="endo") tdee*=0.95;
+
+// 🔹 IMC
+const h = taille/100;
+const imc = poids/(h*h);
+let imc_cat = imc<18.5?"Maigreur":imc<25?"Normal":imc<30?"Surpoids":"Obésité";
+
+const ideal = (22.5*h*h).toFixed(1);
+const overweight_w = (25*h*h).toFixed(1);
+const underweight_w = (18.5*h*h).toFixed(1);
+
+// 🔹 MACROS (experts)
+let p_maint = poids*2.2;
+let p_cut = poids*2.6;
+let p_bulk = poids*2.0;
+
+let l_maint = poids*0.8;
+let l_cut = poids*0.7;
+let l_bulk = poids*0.9;
+
+let g_maint = (tdee - (p_maint*4) - (l_maint*9))/4;
+let g_cut = (tdee - 350 - (p_cut*4) - (l_cut*9))/4;
+let g_bulk = (tdee + 350 - (p_bulk*4) - (l_bulk*9))/4;
+
+// Adaptation morpho
+if(morpho==="ecto"){
+  g_maint*=1.15; g_cut*=1.10; g_bulk*=1.20;
+}
+if(morpho==="endo"){
+  g_maint*=0.90; g_cut*=0.85; g_bulk*=0.90;
+  p_maint*=1.05; p_cut*=1.05; p_bulk*=1.05;
+  l_maint*=0.95; l_cut*=0.95; l_bulk*=0.95;
+}
+
+// Calories
+const pcal_maint = p_maint*4;
+const pcal_cut = p_cut*4;
+const pcal_bulk = p_bulk*4;
+
+const lcal_maint = l_maint*9;
+const lcal_cut = l_cut*9;
+const lcal_bulk = l_bulk*9;
+
+const gcal_maint = g_maint*4;
+const gcal_cut = g_cut*4;
+const gcal_bulk = g_bulk*4;
+
+// Affichage
+document.getElementById("bmr").innerText = Math.round(bmr);
+document.getElementById("tdee").innerText = Math.round(tdee);
+
+document.getElementById("morphoBox").innerHTML = `
+<table>
+<tr><th>IMC</th><th>Catégorie</th><th>Poids idéal (kg)</th><th>Poids → Surpoids (kg)</th><th>Poids → Maigreur (kg)</th></tr>
+<tr>
+<td>${imc.toFixed(1)}</td>
+<td>${imc_cat}</td>
+<td>${ideal}</td>
+<td>${overweight_w}</td>
+<td>${underweight_w}</td>
+</tr>
+</table>
+`;
+
+["maint","cut","bulk"].forEach(mode=>{
+  document.getElementById(`pcal_${mode}`).innerText = Math.round(eval(`pcal_${mode}`));
+  document.getElementById(`lcal_${mode}`).innerText = Math.round(eval(`lcal_${mode}`));
+  document.getElementById(`gcal_${mode}`).innerText = Math.round(eval(`gcal_${mode}`));
+
+  document.getElementById(`p_${mode}`).innerText = Math.round(eval(`p_${mode}`));
+  document.getElementById(`l_${mode}`).innerText = Math.round(eval(`l_${mode}`));
+  document.getElementById(`g_${mode}`).innerText = Math.round(eval(`g_${mode}`));
+});
+
+// Interprétation cohérente
+let advice = "";
+
+if(imc < 18.5){
+  advice = "Votre IMC indique une maigreur. Priorité : surplus calorique modéré, entraînement de force 3–4 fois/semaine, protéines élevées.";
+} else if(imc < 25){
+  advice = "Votre IMC est normal. Maintenez un équilibre entre entraînement, sommeil et nutrition.";
+} else if(imc < 30){
+  advice = "Vous êtes en surpoids. Un déficit calorique léger et une activité régulière sont recommandés.";
+} else {
+  advice = "IMC élevé : risque cardio-métabolique accru. Un suivi professionnel est conseillé.";
+}
+
+document.getElementById("advice").innerText = advice;
+
+// Basculer vers résultats
+document.getElementById("formPage").style.display="none";
+document.getElementById("resultsPage").style.display="block";
+}
+</script>
+
+</body>
+</html>
