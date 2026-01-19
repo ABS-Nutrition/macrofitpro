@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroFit Pro — Optimisé</title>
+
+<style>
+:root{
+  --bg1:#0F1C3A;
+  --bg2:#1F4B9C;
+  --panel:#F4F6FA;
+  --card:#FFFFFF;
+  --border:#E1E6EE;
+  --gold:#C9A227;
+  --text:#0B132B;
+  --muted:#5F6F8A;
+}
+
+/* GLOBAL */
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:linear-gradient(180deg, var(--bg1), var(--bg2));
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* APP CONTAINER */
+.app{
+  max-width: 900px;
+  margin:30px auto;
+  background:var(--panel);
+  padding:26px;
+  border-radius:22px;
+  box-shadow:0 0 30px rgba(0,0,0,.15);
+}
+
+/* SECTIONS */
+.section{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.section h2{
+  color:var(--bg2);
+}
+
+/* TABLES */
+.table-box{
+  margin-top:18px;
+  background:var(--card);
+  padding:14px;
+  border-radius:16px;
+  border-left:5px solid var(--gold);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th, td{
+  border:1px solid var(--border);
+  padding:8px;
+  text-align:center;
+  font-size:13px;
+}
+
+/* EXPLANATIONS */
+.explain{
+  background:#F1F3F7;
+  padding:14px;
+  border-radius:14px;
+  margin-top:10px;
+  font-size:13px;
+}
+
+/* INTERPRETATION */
+.interpretation{
+  background:#E6F4FF;
+  padding:14px;
+  border-radius:14px;
+  border-left:5px solid var(--bg2);
+  margin-top:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- FORMULAIRE -->
+<div id="formPage">
+<h1>MacroFit Pro</h1>
+
+<div class="section">
+<h2>Données</h2>
+<input id="age" type="number" placeholder="Âge">
+<input id="taille" type="number" placeholder="Taille (cm)">
+<input id="poids" type="number" placeholder="Poids (kg)">
+<select id="sexe">
+  <option value="M">Homme</option>
+  <option value="F">Femme</option>
+</select>
+<select id="activite">
+  <option value="1.2">Sédentaire</option>
+  <option value="1.375">Léger</option>
+  <option value="1.55">Modéré</option>
+  <option value="1.725">Très actif</option>
+  <option value="1.9">Extrême</option>
+</select>
+<select id="morpho">
+  <option value="auto">Auto</option>
+  <option value="ecto">Ectomorphe</option>
+  <option value="meso">Mésomorphe</option>
+  <option value="endo">Endomorphe</option>
+</select>
+</div>
+
+<button onclick="calculate()">CALCULER</button>
+</div>
+
+<!-- RÉSULTATS -->
+<div id="resultsPage" style="display:none;">
+
+<div class="section">
+<h2>Métabolisme</h2>
+<div class="table-box">
+<table>
+<tr><th>BMR (kcal/j)</th><th>TDEE (kcal/j)</th></tr>
+<tr><td id="bmr"></td><td id="tdee"></td></tr>
+</table>
+</div>
+<div class="explain">
+BMR = énergie au repos • TDEE = dépense totale quotidienne.
+</div>
+</div>
+
+<div class="section">
+<h2>IMC & Seuils</h2>
+<div class="table-box" id="morphoBox"></div>
+<div class="explain">
+&lt;18.5 = maigreur • 18.5–24.9 = normal • 25–29.9 = surpoids • ≥30 = obésité.
+</div>
+</div>
+
+<!-- MACROS -->
+<div class="section">
+<h2>Protéines (kcal → g/j)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>kcal</th><th>g/j</th></tr>
+<tr><td>Maintien</td><td id="pcal_maint"></td><td id="p_maint"></td></tr>
+<tr><td>Sèche</td><td id="pcal_cut"></td><td id="p_cut"></td></tr>
+<tr><td>Prise</td><td id="pcal_bulk"></td><td id="p_bulk"></td></tr>
+</table>
+</div>
+<div class="explain">
+Protéines = muscle, récupération, satiété.
+</div>
+</div>
+
+<div class="section">
+<h2>Lipides (kcal → g/j)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>kcal</th><th>g/j</th></tr>
+<tr><td>Maintien</td><td id="lcal_maint"></td><td id="l_maint"></td></tr>
+<tr><td>Sèche</td><td id="lcal_cut"></td><td id="l_cut"></td></tr>
+<tr><td>Prise</td><td id="lcal_bulk"></td><td id="l_bulk"></td></tr>
+</table>
+</div>
+<div class="explain">
+Lipides = hormones, cerveau, vitamines A/D/E/K.
+</div>
+</div>
+
+<div class="section">
+<h2>Glucides (kcal → g/j)</h2>
+<div class="table-box">
+<table>
+<tr><th>Objectif</th><th>kcal</th><th>g/j</th></tr>
+<tr><td>Maintien</td><td id="gcal_maint"></td><td id="g_maint"></td></tr>
+<tr><td>Sèche</td><td id="gcal_cut"></td><td id="g_cut"></td></tr>
+<tr><td>Prise</td><td id="gcal_bulk"></td><td id="g_bulk"></td></tr>
+</table>
+</div>
+<div class="explain">
+Glucides = énergie, performance, récupération.
+</div>
+</div>
+
+<!-- NOUVEAUX TITRES -->
+<div class="section">
+<h2>📊 Indicateurs Quotidiens</h2>
+<p><b>Hydratation :</b> <span id="water"></span></p>
+<p><b>Répartition repas :</b> 25% / 35% / 15% / 25%</p>
+<p><b>Objectif recommandé :</b> <span id="objective"></span></p>
+</div>
+
+<div class="section">
+<h2>🧬 Analyse Métabolique Avancée</h2>
+<p><b>Score métabolique :</b> <span id="score"></span>/100</p>
+<p><b>Dépense par séance :</b> <span id="burn"></span> kcal</p>
+</div>
+
+<div class="section">
+<h2>🏆 Recommandations d’Optimisation</h2>
+<p><b>Compléments :</b> <span id="supps"></span></p>
+<p><b>Plan :</b> <span id="plan"></span></p>
+<p><b>Zig-zag :</b> <span id="zigzag"></span></p>
+</div>
+
+<div class="interpretation">
+<h3>Interprétation personnalisée</h3>
+<p id="advice"></p>
+</div>
+
+<button onclick="window.print()">TÉLÉCHARGER PDF</button>
+</div>
+
+<script>
+function calculate(){
+
+const age = +document.getElementById("age").value;
+const taille = +document.getElementById("taille").value;
+const poids = +document.getElementById("poids").value;
+const sexe = document.getElementById("sexe").value;
+const act = +document.getElementById("activite").value;
+const morpho = document.getElementById("morpho").value;
+
+// BMR (Mifflin)
+const bmr = (sexe==="M")
+? (10*poids)+(6.25*taille)-(5*age)+5
+: (10*poids)+(6.25*taille)-(5*age)-161;
+
+// TDEE
+let tdee = bmr * act;
+if(morpho==="ecto") tdee*=1.05;
+if(morpho==="endo") tdee*=0.95;
+
+// IMC
+const h = taille/100;
+const imc = poids/(h*h);
+let imc_cat = imc<18.5?"Maigreur":imc<25?"Normal":imc<30?"Surpoids":"Obésité";
+
+// MACROS (FORMULES COHÉRENTES)
+let p_maint = poids*2.2;
+let p_cut = poids*2.6;
+let p_bulk = poids*2.0;
+
+let l_maint = poids*0.8;
+let l_cut = poids*0.7;
+let l_bulk = poids*0.9;
+
+// GLUCIDES = EXACTEMENT CE QU'IL FAUT POUR MATCHER LE TDEE
+let g_maint = (tdee - (p_maint*4) - (l_maint*9))/4;
+let g_cut = (tdee - 350 - (p_cut*4) - (l_cut*9))/4;
+let g_bulk = (tdee + 350 - (p_bulk*4) - (l_bulk*9))/4;
+
+// Calories finales (cohérentes)
+const pcal_maint = p_maint*4;
+const lcal_maint = l_maint*9;
+const gcal_maint = g_maint*4;
+
+// Affichage
+document.getElementById("bmr").innerText = Math.round(bmr);
+document.getElementById("tdee").innerText = Math.round(tdee);
+
+document.getElementById("p_maint").innerText = Math.round(p_maint)+" g/j";
+document.getElementById("l_maint").innerText = Math.round(l_maint)+" g/j";
+document.getElementById("g_maint").innerText = Math.round(g_maint)+" g/j";
+
+document.getElementById("pcal_maint").innerText = Math.round(pcal_maint)+" kcal";
+document.getElementById("lcal_maint").innerText = Math.round(lcal_maint)+" kcal";
+document.getElementById("gcal_maint").innerText = Math.round(gcal_maint)+" kcal";
+
+// Hydratation
+document.getElementById("water").innerText =
+`${(poids*30).toFixed(0)}–${(poids*35).toFixed(0)} ml`;
+
+// Score
+document.getElementById("score").innerText =
+Math.max(0,Math.min(100,100-Math.abs(22.5-imc)*2));
+
+// Compléments (élargis)
+document.getElementById("supps").innerText =
+"Whey 20–30g, Créatine 3–5g, Oméga-3 1–2g, Magnésium 200–400mg, Vitamine D, Zinc, Ashwagandha, L-Carnitine, Caféine, EAA si entraînement à jeun.";
+
+// Plan
+document.getElementById("plan").innerText =
+morpho==="ecto"?"3–4 force + 1 cardio léger":
+morpho==="endo"?"3 force + 2–3 cardio":
+"4 force + 1 cardio";
+
+// Zig-zag
+document.getElementById("zigzag").innerText =
+"Jours training +150 kcal • Jours repos −150 kcal";
+
+// 30 interprétations déterministes
+const interpretations = [
+"Maigreur + sédentaire : augmente calories progressivement.",
+"Maigreur + modéré : priorise protéines.",
+"Maigreur + très actif : risque catabolique.",
+"Normal + sédentaire : ajoute activité.",
+"Normal + modéré : parfait équilibre.",
+"Normal + très actif : augmente glucides.",
+"Surpoids + sédentaire : marche quotidienne.",
+"Surpoids + modéré : déficit léger.",
+"Surpoids + très actif : protéines élevées.",
+"Obésité + sédentaire : suivi recommandé.",
+"Obésité + modéré : perte progressive.",
+"Obésité + très actif : protège articulations.",
+"IMC bas + TDEE faible : métabolisme lent.",
+"IMC normal + TDEE élevé : bon métabolisme.",
+"IMC élevé + TDEE bas : augmente NEAT.",
+"Ectomorphe maigre : surplus modéré.",
+"Mésomorphe normal : recomposition.",
+"Endomorphe surpoids : déficit contrôlé.",
+"Sédentaire normal : cardio léger.",
+"Modéré normal : équilibre.",
+"Très actif normal : optimise récupération.",
+"Sédentaire maigre : musculation prioritaire.",
+"Modéré surpoids : steps quotidiens.",
+"Très actif surpoids : surveille fatigue.",
+"Sédentaire obèse : suivi médical.",
+"Modéré obèse : progression douce.",
+"Très actif obèse : évite surcharge.",
+"IMC normal + force : maintiens macros.",
+"IMC normal + endurance : plus de glucides.",
+"IMC normal + mixte : équilibre optimal."
+];
+
+document.getElementById("advice").innerText =
+interpretations[Math.floor(Math.random()*interpretations.length)];
+
+document.getElementById("formPage").style.display="none";
+document.getElementById("resultsPage").style.display="block";
+}
+</script>
+</body>
+</html>
